@@ -1,64 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refactoring Evaluation Form</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
-    <style>
-        [x-cloak] { display: none; }
-        .rating-group:hover { background-color: #f3f4f6; }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen p-4">
-    <div class="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-lg" x-data="evaluationForm()">
-        <nav class="mb-4 text-sm text-gray-500" aria-label="Breadcrumb">
-            <ol class="list-none p-0 inline-flex">
-                <li class="flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-indigo-600 hover:text-indigo-900">Dashboard</a>
-                    <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 67.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg>
-                </li>
-                <li>
-                    <span class="text-gray-700">Refactoring Evaluation Form (Form B)</span>
-                </li>
-            </ol>
-        </nav>
-        <h2 class="text-2xl font-bold mb-6 text-center">Refactoring Evaluation Form</h2>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Refactoring Evaluation Form') }}
+        </h2>
+    </x-slot>
 
-        @if (session('success'))
-            <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="max-w-6xl mx-auto bg-white p-8 rounded-lg" x-data="evaluationForm()">
+                        <h2 class="text-2xl font-bold mb-6 text-center">Refactoring Evaluation Form</h2>
 
-        <form action="{{ route('evaluations.store') }}" method="POST" x-ref="form">
-            @csrf
-            <input type="hidden" name="form_type" value="B">
-            
-            <!-- Basic Information -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Vendor/Firm Name</label>
-                    <select name="vendor_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="vendor_name" x-bind:class="{ 'border-red-500 ring-red-500': errors.vendor_name }">
-                        <option value="">Select a vendor</option>
-                        @foreach($vendors as $vendor)
-                            <option value="{{ $vendor->name }}">{{ $vendor->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Evaluator(s)</label>
-                    <input type="text" name="evaluator_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., John Doe" required x-ref="evaluator_name" x-bind:class="{ 'border-red-500 ring-red-500': errors.evaluator_name }">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Date of Meeting</label>
-                    <input type="date" name="meeting_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="meeting_date" x-bind:class="{ 'border-red-500 ring-red-500': errors.meeting_date }">
-                </div>
-            </div>
+                        @if (session('success'))
+                            <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">
+                                {{ session('success') }}
+                            </div>
+                        @endif
 
-            <!-- Section A: Project Understanding -->
+                        <form action="{{ route('evaluations.store') }}" method="POST" x-ref="form">
+                            @csrf
+                            <input type="hidden" name="form_type" value="B">
+                            
+                            <!-- Basic Information -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Vendor/Firm Name</label>
+                                    <select name="vendor_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="vendor_name" x-bind:class="{ 'border-red-500 ring-red-500': errors.vendor_name }">
+                                        <option value="">Select a vendor</option>
+                                        @foreach($vendors as $vendor)
+                                            <option value="{{ $vendor->name }}">{{ $vendor->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Evaluator(s)</label>
+                                    <input list="evaluators" name="evaluator_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., John Doe" required x-ref="evaluator_name" x-bind:class="{ 'border-red-500 ring-red-500': errors.evaluator_name }">
+                                    <datalist id="evaluators">
+                                        @foreach($evaluators as $evaluator)
+                                            <option value="{{ $evaluator->name }}">
+                                        @endforeach
+                                    </datalist>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Date of Meeting</label>
+                                    <input type="date" name="meeting_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="meeting_date" x-bind:class="{ 'border-red-500 ring-red-500': errors.meeting_date }">
+                                </div>
+                            </div>
+
+                            <!-- Section A: Project Understanding -->
             <div class="mb-8" id="section_a">
                 <button type="button" @click="toggleSection('a', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
@@ -712,55 +702,22 @@
                 </div>
             </div>
 
-            <!-- Overall Summary -->
-            <div class="mt-8 bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-xl font-semibold mb-4">Summary & Final Recommendation</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Key Strengths</label>
-                        <textarea name="key_strengths" rows="4" 
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
-                            x-ref="key_strengths" 
-                            x-bind:class="{ 'border-red-500 ring-red-500': errors.key_strengths }"
-                            placeholder="List the vendor's key strengths"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Key Risks / Concerns</label>
-                        <textarea name="key_risks" rows="4" 
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
-                            x-ref="key_risks" 
-                            x-bind:class="{ 'border-red-500 ring-red-500': errors.key_risks }"
-                            placeholder="List any concerns or risks"></textarea>
+                            <div class="flex justify-end space-x-4 mt-6">
+                                <button type="button" @click="submitForm()" 
+                                        class="w-48 bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    Submit Evaluation
+                                </button>
+                                <a href="{{ route('evaluations.show', 'B') }}" 
+                                   class="w-48 bg-gray-200 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                    Submit new evaluation form
+                                </a>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700">Final Recommendation</label>
-                    <select name="recommendation" 
-                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
-                            x-ref="recommendation" 
-                            x-bind:class="{ 'border-red-500 ring-red-500': errors.recommendation }">
-                        <option value="">Select Recommendation</option>
-                        <option value="highly_recommend">Highly Recommend (Proceed to next stage)</option>
-                        <option value="recommend_with_reservations">Recommend with Reservations (Concerns to be addressed)</option>
-                        <option value="do_not_recommend">Do Not Recommend</option>
-                    </select>
-                </div>
             </div>
-
-            <div class="flex justify-end space-x-4 mt-6">
-                <button type="button" @click="submitForm()" 
-                        class="w-48 bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Submit Evaluation
-                </button>
-                <a href="{{ route('evaluations.show', 'B') }}" 
-                   class="w-48 bg-gray-200 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    Submit new evaluation form
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
-
     <script>
         function evaluationForm() {
             return {
@@ -875,5 +832,4 @@
             }
         }
     </script>
-</body>
-</html>
+</x-app-layout>

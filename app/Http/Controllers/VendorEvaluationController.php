@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Evaluator;
 use App\Models\Vendor;
 use App\Models\VendorEvaluation;
 use Illuminate\Http\Request;
@@ -23,12 +24,13 @@ class VendorEvaluationController extends Controller
     public function show($type)
     {
         $vendors = Vendor::all();
+        $evaluators = Evaluator::all();
         $sections = $this->getSectionsConfig($type);
 
         if ($type === 'A') {
-            return view('evaluations.form-A', compact('type', 'sections', 'vendors'));
+            return view('evaluations.form-A', compact('type', 'sections', 'vendors', 'evaluators'));
         } elseif ($type === 'B') {
-            return view('evaluations.form-B', compact('type', 'vendors'));
+            return view('evaluations.form-B', compact('type', 'vendors', 'evaluators'));
         } else {
             abort(404);
         }
@@ -185,6 +187,8 @@ class VendorEvaluationController extends Controller
 public function store(Request $request)
 {
     $formType = $request->input('form_type');
+
+    Evaluator::firstOrCreate(['name' => $request->input('evaluator_name')]);
 
     if ($formType === 'A') {
         $validator = Validator::make($request->all(), [

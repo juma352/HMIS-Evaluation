@@ -702,6 +702,30 @@
                 </div>
             </div>
 
+                            <!-- Summary & Recommendation -->
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Summary & Recommendation</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Key Strengths</label>
+                                        <textarea name="key_strengths" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" x-ref="key_strengths" x-bind:class="{ 'border-red-500 ring-red-500': errors.key_strengths }"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Key Risks/Concerns</label>
+                                        <textarea name="key_risks" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" x-ref="key_risks" x-bind:class="{ 'border-red-500 ring-red-500': errors.key_risks }"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Recommendation</label>
+                                        <select name="recommendation" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" x-ref="recommendation" x-bind:class="{ 'border-red-500 ring-red-500': errors.recommendation }">
+                                            <option value="">Select a recommendation</option>
+                                            <option value="Highly Recommended">Highly Recommended</option>
+                                            <option value="Recommended">Recommended</option>
+                                            <option value="Not Recommended">Not Recommended</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="flex justify-end space-x-4 mt-6">
                                 <button type="button" @click="submitForm()" 
                                         class="w-48 bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">

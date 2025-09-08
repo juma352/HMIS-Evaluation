@@ -10,11 +10,12 @@ class VendorEvaluation extends Model
     use HasFactory;
 
     protected $fillable = [
-      'user_id',
+        'user_id',
         'form_type',
         'vendor_name',
         'evaluator_name',
         'evaluation_date',
+        'meeting_date',
         'section_a',
         'section_b',
         'section_c',
@@ -26,17 +27,19 @@ class VendorEvaluation extends Model
         'areas_for_improvement',
         'recommendation',
         'final_comments',
+        'final_committee_comment',
         'total_score'
     ];
 
     protected $casts = [
-         'section_a' => 'array',
+        'section_a' => 'array',
         'section_b' => 'array',
         'section_c' => 'array',
         'section_d' => 'array',
         'section_e' => 'array',
         'section_f' => 'array',
         'evaluation_date' => 'date',
+        'meeting_date' => 'date',
         'total_score' => 'decimal:2'
     ];
 
@@ -52,7 +55,6 @@ class VendorEvaluation extends Model
         } elseif ($this->form_type === 'B') {
             return 'Refactoring Evaluation Form (Form B)';
         }
-
         return 'Unknown Form';
     }
 
@@ -71,8 +73,46 @@ class VendorEvaluation extends Model
                 'areas_for_improvement' => $this->areas_for_improvement,
                 'recommendation' => $this->recommendation,
                 'final_comments' => $this->final_comments,
+                'final_committee_comment' => $this->final_committee_comment,
                 'total_score' => $this->total_score,
             ]
         );
+    }
+
+    public function getSectionAvg($section)
+    {
+        $data = $this->{$section};
+        if (!$data) return 0.00;
+
+        if ($this->form_type === 'A') {
+            $scores = collect($data)->pluck('score')->filter()->map(fn($s) => (float) $s);
+        } else {
+            $scores = collect($data['ratings'] ?? [])->pluck('score')->filter(fn($s) => $s && $s !== 'N/A')->map(fn($s) => (float) $s);
+        }
+
+        return $scores->count() > 0 ? $scores->avg() : 0.00;
+    }
+
+    public function sectionAAvg() { return $this->getSectionAvg('section_a'); }
+    public function sectionBAvg() { return $this->getSectionAvg('section_b'); }
+    public function sectionCAvg() { return $this->getSectionAvg('section_c'); }
+    public function sectionDAvg() { return $this->getSectionAvg('section_d'); }
+    public function sectionEAvg() { return $this->getSectionAvg('section_e'); }
+    public function sectionFAvg() { return $this->getSectionAvg('section_f'); }
+
+    public function getEvalDateAttribute()
+    {
+        $date = $this->form_type === 'A' ? $this->evaluation_date : $this->meeting_date;
+        if ($date instanceof \DateTime) {
+            return $date;
+        }
+        if (is_string($date) && !empty($date)) {
+            try {
+                return new \DateTime($date);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

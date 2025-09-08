@@ -4,7 +4,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\ProfileController;
 
-    Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
+// Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorEvaluationController;
 use App\Http\Controllers\ReportController;
@@ -23,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/evaluation', [VendorEvaluationController::class, 'store'])->name('evaluations.store');
     Route::get('/evaluations', [VendorEvaluationController::class, 'index'])->name('evaluations.index');
     Route::get('/evaluations/{id}', [VendorEvaluationController::class, 'showResult'])->name('evaluations.showResult');
+    Route::patch('reports/{vendorEvaluation}/committee-comment', [ReportController::class, 'updateCommitteeComment'])->name('reports.updateCommitteeComment');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -31,4 +33,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

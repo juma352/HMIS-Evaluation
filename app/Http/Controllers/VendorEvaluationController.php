@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class VendorEvaluationController extends Controller
 {
-     public function __construct()
+    public function __construct()
     {
         $this->middleware('auth');
     }
@@ -36,7 +36,7 @@ class VendorEvaluationController extends Controller
         }
     }
 
-    private function getSectionsConfig($type)
+    public function getSectionsConfig($type)
     {
         if ($type === 'A') {
             return [
@@ -60,7 +60,7 @@ class VendorEvaluationController extends Controller
                             'title' => 'Reporting & Analytics',
                             'description' => 'Real-time dashboards, customizable reports (e.g., MOH tools for TB/HIV), BI for data-driven decisions?'
                         ],
-                         'criterion_5' => [
+                        'criterion_5' => [
                             'title' => 'AI & Advanced Features',
                             'description' => 'Integrates AI for clinical support, predictive analytics, automation (e.g., scheduling, diagnostics)?'
                         ]
@@ -169,12 +169,72 @@ class VendorEvaluationController extends Controller
                     ]
                 ]
             ];
-        } else {
-            return []; // Or handle other types if necessary
+        } elseif ($type === 'B') {
+            return [
+                'section_a' => [
+                    'title' => 'Project Understanding & Domain Knowledge',
+                    'weight' => '20%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The vendor demonstrated a clear understanding of the current system’s technology debt (e.g., outdated .NET Framework, WebForms, jQuery).'],
+                        'rating_2' => ['description' => 'The vendor accurately summarized the project’s strategic goals (e.g., modernization, improved security, scalability).'],
+                        'rating_3' => ['description' => 'The vendor showed strong expertise in relevant healthcare standards, including the migration from HL7 v2 to HL7 FHIR.'],
+                        'rating_4' => ['description' => 'The vendor recognized the unique operational challenges of a live hospital environment and the need to minimize disruption.']
+                    ]
+                ],
+                'section_b' => [
+                    'title' => 'Technical Methodology & Approach',
+                    'weight' => '20%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The vendor presented a clear, credible, and well-defined methodology for refactoring the application from ASP.NET WebForms to .NET Core/Blazor.'],
+                        'rating_2' => ['description' => 'The proposed approach for decoupling business logic from forms and creating a modern, service-oriented architecture is sound.'],
+                        'rating_3' => ['description' => 'The vendor’s plan for the UI/UX redesign is convincing and aligns with our goal for a modern, maintainable user experience.'],
+                        'rating_4' => ['description' => 'The vendor has a clear strategy for a phased migration to minimize risk and downtime, as opposed to a "big bang" rewrite.']
+                    ]
+                ],
+                'section_c' => [
+                    'title' => 'Security & Compliance Strategy',
+                    'weight' => '20%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The vendor provided a confident and specific plan to remediate the identified security vulnerabilities (SQL Injection, insecure deserialization, etc.).'],
+                        'rating_2' => ['description' => 'The vendor’s approach to implementing parameterized queries to fix SQL injection is aligned with best practices.'],
+                        'rating_3' => ['description' => 'The vendor demonstrated a strong commitment to data security and privacy principles appropriate for sensitive patient data.'],
+                        'rating_4' => ['description' => 'The vendor’s plan for implementing Two-Factor Authentication (2FA) is clear and technically sound.']
+                    ]
+                ],
+                'section_d' => [
+                    'title' => 'Future-Proofing & Roadmap Alignment',
+                    'weight' => '20%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The proposed architecture appears scalable and capable of supporting future roadmap features (AI/ML, DICOM integration, Smart Documentation).'],
+                        'rating_2' => ['description' => 'The vendor agrees that a modern, service-oriented foundation is a prerequisite for advanced capabilities like AI/ML.'],
+                        'rating_3' => ['description' => 'The vendor presented a viable approach for viewer-level imaging integration and interfacing with external PACS systems.'],
+                        'rating_4' => ['description' => 'The vendor has relevant ideas or experience in implementing "Smart Documentation" features (NLP, Voice-to-Text, etc.).']
+                    ]
+                ],
+                'section_e' => [
+                    'title' => 'Project Management & Collaboration',
+                    'weight' => '10%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The vendor’s project management methodology (e.g., Agile/Scrum) is well-defined and suits our needs.'],
+                        'rating_2' => ['description' => 'The plan for communication, stakeholder engagement, and progress reporting is transparent and frequent.'],
+                        'rating_3' => ['description' => 'The vendor has a clear plan for knowledge transfer to ensure our internal team can maintain the system post-launch.'],
+                        'rating_4' => ['description' => 'The vendor appears to be a collaborative partner rather than just a contractor.']
+                    ]
+                ],
+                'section_f' => [
+                    'title' => 'Cost & Commercials',
+                    'weight' => '10%',
+                    'criteria' => [
+                        'rating_1' => ['description' => 'The vendor provided a clear, detailed, and transparent cost breakdown for the entire project.'],
+                        'rating_2' => ['description' => 'The proposed Total Cost of Ownership (TCO), including licensing and initial investment, appears reasonable for the value offered.'],
+                        'rating_3' => ['description' => 'The post-launch support and maintenance costs (Annual Maintenance Cost - AMC) are clearly defined and seem sustainable.'],
+                        'rating_4' => ['description' => 'The proposed timeline aligns with our expectation of approximately 18 months.']
+                    ]
+                ]
+            ];
         }
+        return [];
     }
-
-
 
     public function showResult($id)
     {
@@ -183,125 +243,124 @@ class VendorEvaluationController extends Controller
         return view('evaluations.show', compact('evaluation', 'sectionsConfig'));
     }
 
-   
-public function store(Request $request)
-{
-    $formType = $request->input('form_type');
 
-    Evaluator::firstOrCreate(['name' => $request->input('evaluator_name')]);
+    public function store(Request $request)
+    {
+        $formType = $request->input('form_type');
 
-    if ($formType === 'A') {
-        $validator = Validator::make($request->all(), [
-            'vendor_name' => 'required|string|max:255',
-            'evaluator_name' => 'required|string|max:255',
-            'evaluation_date' => 'required|date',
-            'form_type' => 'required|in:A',
-            'scores' => 'required|array',
-            'comments' => 'required|array',
-            'key_strengths' => 'required|string',
-            'areas_for_improvement' => 'required|string',
-            'recommendation' => 'required|string',
-            'final_comments' => 'nullable|string'
-        ]);
+        Evaluator::firstOrCreate(['name' => $request->input('evaluator_name')]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+        if ($formType === 'A') {
+            $validator = Validator::make($request->all(), [
+                'vendor_name' => 'required|string|max:255',
+                'evaluator_name' => 'required|string|max:255',
+                'evaluation_date' => 'required|date',
+                'form_type' => 'required|in:A',
+                'scores' => 'required|array',
+                'comments' => 'required|array',
+                'key_strengths' => 'required|string',
+                'areas_for_improvement' => 'required|string',
+                'recommendation' => 'required|string',
+                'final_comments' => 'nullable|string'
+            ]);
 
-        // Calculate weighted scores for Form A
-        $sectionsConfig = $this->getSectionsConfig('A');
-        $total_score = 0;
-        $sectionData = [];
-
-        foreach ($sectionsConfig as $sectionKey => $sectionDetails) {
-            $scores = collect($request->input("scores.$sectionKey"))->filter()->avg();
-            $total_score += $scores * (float)str_replace('%', '', $sectionDetails['weight']) / 100;
-
-            $sectionContent = [];
-            foreach ($sectionDetails['criteria'] as $criterionKey => $criterionDetails) {
-                $score = $request->input("scores.$sectionKey.$criterionKey");
-                $comment = $request->input("comments.$sectionKey.$criterionKey");
-
-                $sectionContent[$criterionKey] = [
-                    'score' => $score,
-                    'comment' => $comment,
-                ];
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
             }
-            $sectionData[$sectionKey] = $sectionContent;
+
+            // Calculate weighted scores for Form A
+            $sectionsConfig = $this->getSectionsConfig('A');
+            $total_score = 0;
+            $sectionData = [];
+
+            foreach ($sectionsConfig as $sectionKey => $sectionDetails) {
+                $scores = collect($request->input("scores.$sectionKey"))->filter()->avg();
+                $total_score += $scores * (float)str_replace('%', '', $sectionDetails['weight']) / 100;
+
+                $sectionContent = [];
+                foreach ($sectionDetails['criteria'] as $criterionKey => $criterionDetails) {
+                    $score = $request->input("scores.$sectionKey.$criterionKey");
+                    $comment = $request->input("comments.$sectionKey.$criterionKey");
+
+                    $sectionContent[$criterionKey] = [
+                        'score' => $score,
+                        'comment' => $comment,
+                    ];
+                }
+                $sectionData[$sectionKey] = $sectionContent;
+            }
+            $total_score = $total_score * 20; // Scale to 100
+
+            VendorEvaluation::create(array_merge($request->except(['scores', 'comments']), [
+                'user_id' => auth()->id(),
+                'form_type' => 'A',
+                'total_score' => $total_score,
+                'section_a' => $sectionData['section_a'] ?? [],
+                'section_b' => $sectionData['section_b'] ?? [],
+                'section_c' => $sectionData['section_c'] ?? [],
+                'section_d' => $sectionData['section_d'] ?? [],
+                'section_e' => $sectionData['section_e'] ?? [],
+                'section_f' => $sectionData['section_f'] ?? [],
+            ]));
+        } elseif ($formType === 'B') {
+            $validator = Validator::make($request->all(), [
+                'vendor_name' => 'required|string|max:255',
+                'evaluator_name' => 'required|string|max:255',
+                'meeting_date' => 'required|date',
+                'form_type' => 'required|in:B',
+                'sections.section_a' => 'nullable|array',
+                'sections.section_b' => 'nullable|array',
+                'sections.section_c' => 'nullable|array',
+                'sections.section_d' => 'nullable|array',
+                'sections.section_e' => 'nullable|array',
+                'sections.section_f' => 'nullable|array',
+                'key_strengths' => 'required|string',
+                'key_risks' => 'required|string',
+                'recommendation' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            // Calculate average score for Form B
+            $sections = $request->input('sections');
+            $validScores = collect($sections)
+                ->flatten(1)
+                ->pluck('score')
+                ->filter(function ($score) {
+                    return $score !== 'N/A' && $score !== '';
+                })
+                ->map(function ($score) {
+                    return (int)$score;
+                });
+
+            $total_score = $validScores->avg() * 20; // Scale to 100
+
+            VendorEvaluation::create([
+                'user_id' => auth()->id(),
+                'form_type' => 'B',
+                'vendor_name' => $request->vendor_name,
+                'evaluator_name' => $request->evaluator_name,
+                'meeting_date' => $request->meeting_date,
+                'section_a' => $request->input('sections.section_a', []),
+                'section_b' => $request->input('sections.section_b', []),
+                'section_c' => $request->input('sections.section_c', []),
+                'section_d' => $request->input('sections.section_d', []),
+                'section_e' => $request->input('sections.section_e', []),
+                'section_f' => $request->input('sections.section_f', []),
+                'key_strengths' => $request->key_strengths,
+                'key_risks' => $request->key_risks,
+                'recommendation' => $request->recommendation,
+                'total_score' => $total_score
+            ]);
         }
-        $total_score = $total_score * 20; // Scale to 100
 
-        VendorEvaluation::create(array_merge($request->except(['scores', 'comments']), [
-            'user_id' => auth()->id(),
-            'form_type' => 'A',
-            'total_score' => $total_score,
-            'section_a' => $sectionData['section_a'] ?? [],
-            'section_b' => $sectionData['section_b'] ?? [],
-            'section_c' => $sectionData['section_c'] ?? [],
-            'section_d' => $sectionData['section_d'] ?? [],
-            'section_e' => $sectionData['section_e'] ?? [],
-            'section_f' => $sectionData['section_f'] ?? [],
-        ]));
-
-    } elseif ($formType === 'B') {
-        $validator = Validator::make($request->all(), [
-            'vendor_name' => 'required|string|max:255',
-            'evaluator_name' => 'required|string|max:255',
-            'meeting_date' => 'required|date',
-            'form_type' => 'required|in:B',
-            'sections.section_a' => 'nullable|array',
-            'sections.section_b' => 'nullable|array',
-            'sections.section_c' => 'nullable|array',
-            'sections.section_d' => 'nullable|array',
-            'sections.section_e' => 'nullable|array',
-            'sections.section_f' => 'nullable|array',
-            'key_strengths' => 'required|string',
-            'key_risks' => 'required|string',
-            'recommendation' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        // Calculate average score for Form B
-        $sections = $request->input('sections');
-        $validScores = collect($sections)
-            ->flatten(1)
-            ->pluck('score')
-            ->filter(function($score) {
-                return $score !== 'N/A' && $score !== '';
-            })
-            ->map(function($score) {
-                return (int)$score;
-            });
-
-        $total_score = $validScores->avg() * 20; // Scale to 100
-
-        VendorEvaluation::create([
-            'user_id' => auth()->id(),
-            'form_type' => 'B',
-            'vendor_name' => $request->vendor_name,
-            'evaluator_name' => $request->evaluator_name,
-            'meeting_date' => $request->meeting_date,
-            'section_a' => $request->input('sections.section_a', []),
-            'section_b' => $request->input('sections.section_b', []),
-            'section_c' => $request->input('sections.section_c', []),
-            'section_d' => $request->input('sections.section_d', []),
-            'section_e' => $request->input('sections.section_e', []),
-            'section_f' => $request->input('sections.section_f', []),
-            'key_strengths' => $request->key_strengths,
-            'key_risks' => $request->key_risks,
-            'recommendation' => $request->recommendation,
-            'total_score' => $total_score
-        ]);
+        return redirect()->route('evaluations.show', $formType)
+            ->with('success', 'Evaluation submitted successfully!');
     }
-
-    return redirect()->route('evaluations.show', $formType)
-        ->with('success', 'Evaluation submitted successfully!');
-}
 }

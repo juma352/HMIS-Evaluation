@@ -254,7 +254,7 @@ class VendorEvaluationController extends Controller
             $validator = Validator::make($request->all(), [
                 'vendor_name' => 'required|string|max:255',
                 'evaluator_name' => 'required|string|max:255',
-                'evaluation_date' => 'required|date',
+                'meeting_date' => 'required|date',
                 'form_type' => 'required|in:A',
                 'scores' => 'required|array',
                 'comments' => 'required|array',
@@ -296,6 +296,7 @@ class VendorEvaluationController extends Controller
             VendorEvaluation::create(array_merge($request->except(['scores', 'comments']), [
                 'user_id' => auth()->id(),
                 'form_type' => 'A',
+                'evaluation_date' => $request->meeting_date,
                 'total_score' => $total_score,
                 'section_a' => $sectionData['section_a'] ?? [],
                 'section_b' => $sectionData['section_b'] ?? [],
@@ -308,14 +309,9 @@ class VendorEvaluationController extends Controller
             $validator = Validator::make($request->all(), [
                 'vendor_name' => 'required|string|max:255',
                 'evaluator_name' => 'required|string|max:255',
-                'meeting_date' => 'required|date',
+                'evaluation_date' => 'required|date',
                 'form_type' => 'required|in:B',
-                'sections.section_a' => 'nullable|array',
-                'sections.section_b' => 'nullable|array',
-                'sections.section_c' => 'nullable|array',
-                'sections.section_d' => 'nullable|array',
-                'sections.section_e' => 'nullable|array',
-                'sections.section_f' => 'nullable|array',
+                'sections' => 'required|array',
                 'key_strengths' => 'required|string',
                 'key_risks' => 'required|string',
                 'recommendation' => 'required|string'
@@ -327,32 +323,47 @@ class VendorEvaluationController extends Controller
                     ->withInput();
             }
 
-            // Calculate average score for Form B
             $sections = $request->input('sections');
-            $validScores = collect($sections)
-                ->flatten(1)
-                ->pluck('score')
-                ->filter(function ($score) {
-                    return $score !== 'N/A' && $score !== '';
-                })
-                ->map(function ($score) {
-                    return (int)$score;
-                });
+            $allScores = [];
+            $sectionData = [];
 
-            $total_score = $validScores->avg() * 20; // Scale to 100
+            foreach ($sections as $sectionKey => $sectionContent) {
+                $sectionRatings = [];
+                if (isset($sectionContent['ratings'])) {
+                    foreach ($sectionContent['ratings'] as $ratingKey => $rating) {
+                        $sectionRatings[$ratingKey] = [
+                            'score' => $rating['score'] ?? null,
+                        ];
+
+                        if (isset($rating['score']) && is_numeric($rating['score'])) {
+                            $allScores[] = (int)$rating['score'];
+                        }
+                    }
+                }
+                $sectionData["section_".$sectionKey] = [
+                    'ratings' => $sectionRatings,
+                    'comments' => $sectionContent['comments'] ?? null,
+                ];
+            }
+
+            $total_score = 0;
+            if (count($allScores) > 0) {
+                $averageScore = array_sum($allScores) / count($allScores);
+                $total_score = ($averageScore / 5) * 100;
+            }
 
             VendorEvaluation::create([
                 'user_id' => auth()->id(),
                 'form_type' => 'B',
                 'vendor_name' => $request->vendor_name,
                 'evaluator_name' => $request->evaluator_name,
-                'meeting_date' => $request->meeting_date,
-                'section_a' => $request->input('sections.section_a', []),
-                'section_b' => $request->input('sections.section_b', []),
-                'section_c' => $request->input('sections.section_c', []),
-                'section_d' => $request->input('sections.section_d', []),
-                'section_e' => $request->input('sections.section_e', []),
-                'section_f' => $request->input('sections.section_f', []),
+                'evaluation_date' => $request->input('evaluation_date'),
+                'section_a' => $sectionData['section_a'] ?? [],
+                'section_b' => $sectionData['section_b'] ?? [],
+                'section_c' => $sectionData['section_c'] ?? [],
+                'section_d' => $sectionData['section_d'] ?? [],
+                'section_e' => $sectionData['section_e'] ?? [],
+                'section_f' => $sectionData['section_f'] ?? [],
                 'key_strengths' => $request->key_strengths,
                 'key_risks' => $request->key_risks,
                 'recommendation' => $request->recommendation,

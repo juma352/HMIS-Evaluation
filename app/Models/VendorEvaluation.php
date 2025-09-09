@@ -15,7 +15,6 @@ class VendorEvaluation extends Model
         'vendor_name',
         'evaluator_name',
         'evaluation_date',
-        'meeting_date',
         'section_a',
         'section_b',
         'section_c',
@@ -39,7 +38,6 @@ class VendorEvaluation extends Model
         'section_e' => 'array',
         'section_f' => 'array',
         'evaluation_date' => 'date',
-        'meeting_date' => 'date',
         'total_score' => 'decimal:2'
     ];
 
@@ -100,19 +98,20 @@ class VendorEvaluation extends Model
     public function sectionEAvg() { return $this->getSectionAvg('section_e'); }
     public function sectionFAvg() { return $this->getSectionAvg('section_f'); }
 
-    public function getEvalDateAttribute()
+    public function getEvaluationDateAttribute($value)
     {
-        $date = $this->form_type === 'A' ? $this->evaluation_date : $this->meeting_date;
-        if ($date instanceof \DateTime) {
-            return $date;
+        if ($value instanceof \DateTime) {
+            return $value;
         }
-        if (is_string($date) && !empty($date)) {
+        if (is_string($value) && !empty($value)) {
             try {
-                return new \DateTime($date);
+                return new \DateTime($value);
             } catch (\Exception $e) {
                 return null;
             }
         }
         return null;
     }
+
+    
 }

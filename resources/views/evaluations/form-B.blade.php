@@ -44,7 +44,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Date of Meeting</label>
-                                    <input type="date" name="meeting_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="meeting_date" x-bind:class="{ 'border-red-500 ring-red-500': errors.meeting_date }">
+                                    <input type="date" name="evaluation_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required x-ref="evaluation_date" x-bind:class="{ 'border-red-500 ring-red-500': errors.evaluation_date }">
                                 </div>
                             </div>
 
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Section B: Technical Methodology & Approach -->
-            <div class="mb-8">
+            <div class="mb-8" id="section_b">
                 <button type="button" @click="toggleSection('b', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
                     <span x-text="openSection === 'b' ? '-' : '+'" class="mr-2"></span>
@@ -267,7 +267,7 @@
             </div>
 
             <!-- Section C: Security & Compliance Strategy -->
-            <div class="mb-8">
+            <div class="mb-8" id="section_c">
                 <button type="button" @click="toggleSection('c', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
                     <span x-text="openSection === 'c' ? '-' : '+'" class="mr-2"></span>
@@ -376,7 +376,7 @@
             </div>
 
             <!-- Section D: Future-Proofing & Roadmap Alignment -->
-            <div class="mb-8">
+            <div class="mb-8" id="section_d">
                 <button type="button" @click="toggleSection('d', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
                     <span x-text="openSection === 'd' ? '-' : '+'" class="mr-2"></span>
@@ -485,7 +485,7 @@
             </div>
 
             <!-- Section E: Project Management & Collaboration -->
-            <div class="mb-8">
+            <div class="mb-8" id="section_e">
                 <button type="button" @click="toggleSection('e', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
                     <span x-text="openSection === 'e' ? '-' : '+'" class="mr-2"></span>
@@ -594,7 +594,7 @@
             </div>
 
             <!-- Section F: Cost & Commercials -->
-            <div class="mb-8">
+            <div class="mb-8" id="section_f">
                 <button type="button" @click="toggleSection('f', $event)" 
                         class="flex items-center w-full text-xl font-semibold mb-4 bg-indigo-50 p-4 rounded-lg">
                     <span x-text="openSection === 'f' ? '-' : '+'" class="mr-2"></span>
@@ -757,7 +757,7 @@
                 errors: {
                     vendor_name: false,
                     evaluator_name: false,
-                    meeting_date: false,
+                    evaluation_date: false,
                     sections: {
                         a: { ratings: { 1: { score: false }, 2: { score: false }, 3: { score: false }, 4: { score: false } }, comments: false },
                         b: { ratings: { 1: { score: false }, 2: { score: false }, 3: { score: false }, 4: { score: false } }, comments: false },
@@ -776,7 +776,10 @@
 
                     if (isOpening) {
                         this.$nextTick(() => {
-                            event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            const sectionEl = document.getElementById(`section_${section}`);
+                            if (sectionEl) {
+                                sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
                         });
                     }
                 },
@@ -805,7 +808,7 @@
                     // Validate basic info
                     if (!this.$refs.vendor_name.value) { this.errors.vendor_name = true; isValid = false; firstErrorEl = firstErrorEl || this.$refs.vendor_name; }
                     if (!this.$refs.evaluator_name.value) { this.errors.evaluator_name = true; isValid = false; firstErrorEl = firstErrorEl || this.$refs.evaluator_name; }
-                    if (!this.$refs.meeting_date.value) { this.errors.meeting_date = true; isValid = false; firstErrorEl = firstErrorEl || this.$refs.meeting_date; }
+                    if (!this.$refs.evaluation_date.value) { this.errors.evaluation_date = true; isValid = false; firstErrorEl = firstErrorEl || this.$refs.evaluation_date; }
 
                     // Validate ratings
                     for (const sectionKey in this.ratings) {

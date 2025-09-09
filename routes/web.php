@@ -25,12 +25,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/evaluations', [VendorEvaluationController::class, 'index'])->name('evaluations.index');
     Route::get('/evaluations/{id}', [VendorEvaluationController::class, 'showResult'])->name('evaluations.showResult');
     Route::patch('reports/{vendorEvaluation}/committee-comment', [ReportController::class, 'updateCommitteeComment'])->name('reports.updateCommitteeComment');
+    Route::post('/reports/vendor-comment', [ReportController::class, 'updateVendorComment'])->name('reports.updateVendorComment');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/make-admin', [ProfileController::class, 'makeAdmin'])->name('profile.makeAdmin');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.makeAdmin');
 });
 
 require __DIR__ . '/auth.php';

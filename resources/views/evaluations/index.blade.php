@@ -15,7 +15,14 @@
                 <h3 class="text-xl font-semibold mb-4">Vendor: {{ $evaluation->vendor_name }}</h3>
                 <p><strong>Evaluator:</strong> {{ $evaluation->evaluator_name }}</p>
                 <p><strong>Form Type:</strong> {{ $evaluation->form_type === 'A' ? 'HMIS Vendor Evaluation' : 'Refactoring Evaluation' }}</p>
-                <p><strong>Date:</strong> {{ $evaluation->created_at->format('Y-m-d') }}</p>
+                <p><strong>Date:</strong> 
+                    @if ($evaluation->evaluation_date)
+                        {{ $evaluation->evaluation_date->format('Y-m-d') }}
+                    @else
+                        N/A
+                    @endif
+                </p>
+                
                 <p><strong>Total Score:</strong> {{ number_format($evaluation->total_score, 2) }}%</p>
 
                 @if ($evaluation->form_type === 'A')
@@ -33,14 +40,28 @@
                 @else
                     <div class="mt-4">
                         <h4 class="font-semibold">Evaluation Details:</h4>
+                        <ul>
+                            @foreach (['section_a', 'section_b', 'section_c', 'section_d', 'section_e', 'section_f'] as $sectionKey)
+                                @if (isset($evaluation->$sectionKey) && is_array($evaluation->$sectionKey))
+                                    <li>{{ ucfirst(str_replace('_', ' ', $sectionKey)) }} Average Score: {{ number_format($evaluation->getSectionAvg($sectionKey) * 20, 2) }}%</li>
+                                @endif
+                            @endforeach
+                        </ul>
+                        <h5 class="font-semibold mt-4">Detailed Breakdown:</h5>
                         @php
                             $sections = ['section_a', 'section_b', 'section_c', 'section_d', 'section_e', 'section_f'];
                         @endphp
-                        @foreach ($sections as $section)
-                            @if (is_array($evaluation->$section))
-                                @foreach ($evaluation->$section as $key => $value)
-                                    <p><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}, Comment: {{ $value['comment'] ?? '' }}</p>
-                                @endforeach
+                        @foreach ($sections as $sectionKey)
+                            @if (isset($evaluation->$sectionKey) && is_array($evaluation->$sectionKey))
+                                <div class="mb-2 p-2 border rounded-md bg-gray-50">
+                                    <h6 class="font-medium text-md mb-1">{{ ucfirst(str_replace('_', ' ', $sectionKey)) }} Individual Ratings:</h6>
+                                    @php
+                                        $sectionContent = isset($evaluation->$sectionKey['ratings']) ? $evaluation->$sectionKey['ratings'] : $evaluation->$sectionKey;
+                                    @endphp
+                                    @foreach ($sectionContent as $key => $value)
+                                        <p class="text-sm ml-2"><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}, Comment: {{ $value['comment'] ?? 'N/A' }}</p>
+                                    @endforeach
+                                </div>
                             @endif
                         @endforeach
                     </div>
@@ -49,9 +70,13 @@
                 <div class="mt-4">
                     <h4 class="font-semibold">Summary & Recommendation:</h4>
                     <p><strong>Key Strengths:</strong> {{ $evaluation->key_strengths }}</p>
-                    <p><strong>Key Risks/Concerns:</strong> {{ $evaluation->key_risks }}</p>
+                    @if ($evaluation->form_type === 'A')
+                        <p><strong>Areas for Improvement:</strong> {{ $evaluation->areas_for_improvement ?? 'N/A' }}</p>
+                    @else
+                        <p><strong>Key Risks/Concerns:</strong> {{ $evaluation->key_risks ?? 'N/A' }}</p>
+                    @endif
                     <p><strong>Final Recommendation:</strong> {{ $evaluation->recommendation }}</p>
-                    <p><strong>Next Steps:</strong> {{ $evaluation->next_steps }}</p>
+                    <p><strong>Next Steps:</strong> {{ $evaluation->next_steps ?? 'N/A' }}</p>
                 </div>
             </div>
         @endforeach

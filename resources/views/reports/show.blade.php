@@ -15,7 +15,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <p><strong>Evaluator:</strong> {{ $vendorEvaluation->evaluator_name }}</p>
                             <p><strong>Form Type:</strong> {{ $vendorEvaluation->getFormNameAttribute() }}</p>
-                            <p><strong>Date:</strong> {{ $vendorEvaluation->meeting_date ? $vendorEvaluation->meeting_date->format('Y-m-d') : 'N/A' }}</p>
+                            <p><strong>Date:</strong> {{ $vendorEvaluation->evaluation_date ? $vendorEvaluation->evaluation_date->format('Y-m-d') : 'N/A' }}</p>
                             <p><strong>Total Score:</strong> {{ number_format($vendorEvaluation->total_score, 2) }}%</p>
                         </div>
                     </div>
@@ -43,7 +43,10 @@
                                     @endphp
                                     <p class="mt-3 font-semibold text-sm text-gray-900">Weighted Score: {{ number_format($weightedContribution, 2) }}%</p>
                                 @else
-                                    @foreach ($vendorEvaluation->$sectionKey['ratings'] ?? [] as $ratingKey => $data)
+                                    @php
+                                        $sectionContent = isset($vendorEvaluation->$sectionKey['ratings']) ? $vendorEvaluation->$sectionKey['ratings'] : $vendorEvaluation->$sectionKey;
+                                    @endphp
+                                    @foreach ($sectionContent ?? [] as $ratingKey => $data)
                                         <div class="mb-2 ml-4">
                                             <p class="text-sm text-gray-700">
                                                 <strong>{{ $sectionsConfig[$sectionKey]['criteria']['rating_' . $ratingKey]['description'] ?? 'Rating ' . $ratingKey }}:</strong>
@@ -51,7 +54,20 @@
                                             </p>
                                         </div>
                                     @endforeach
-                                    <p class="mt-2 text-sm text-gray-700"><strong>Section Comments:</strong> {{ $vendorEvaluation->$sectionKey['comments'] ?? 'N/A' }}</p>
+                                    <p class="mt-2 text-sm text-gray-700"><strong>Section Comments:</strong> 
+                                        @php
+                                            $sectionComments = $vendorEvaluation->$sectionKey['comments'] ?? null;
+                                            if (is_null($sectionComments) && isset($vendorEvaluation->$sectionKey['ratings']) && !empty($vendorEvaluation->$sectionKey['ratings'])) {
+                                                $firstRatingKey = array_key_first($vendorEvaluation->$sectionKey['ratings']);
+                                                $sectionComments = $vendorEvaluation->$sectionKey['ratings'][$firstRatingKey]['comment'] ?? null;
+                                            } elseif (is_null($sectionComments) && !isset($vendorEvaluation->$sectionKey['ratings']) && is_array($vendorEvaluation->$sectionKey) && !empty($vendorEvaluation->$sectionKey)) {
+                                                // Fallback for old structure where comments might be directly in the section array (though less likely)
+                                                $firstKey = array_key_first($vendorEvaluation->$sectionKey);
+                                                $sectionComments = $vendorEvaluation->$sectionKey[$firstKey]['comment'] ?? null;
+                                            }
+                                        @endphp
+                                        {{ $sectionComments ?? 'N/A' }}
+                                    </p>
                                 @endif
                             </div>
                         @endif
@@ -68,17 +84,6 @@
                             <p class="text-sm text-gray-700"><strong>Key Risks:</strong> {{ $vendorEvaluation->key_risks ?? 'N/A' }}</p>
                         @endif
                         <p class="text-sm text-gray-700"><strong>Recommendation:</strong> {{ $vendorEvaluation->recommendation ?? 'N/A' }}</p>
-                    </div>
-
-                    <!-- Final Committee Comment -->
-                    <div class="mt-8">
-                        <h4 class="font-semibold text-lg mb-3 text-gray-900">Final Committee Comment</h4>
-                        <form method="POST" action="{{ route('reports.updateCommitteeComment', $vendorEvaluation->id) }}" class="space-y-4">
-                            @csrf
-                            @method('PATCH')
-                            <textarea name="final_committee_comment" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" rows="4" placeholder="Enter committee comment">{{ $vendorEvaluation->final_committee_comment }}</textarea>
-                            <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save Comment</button>
-                        </form>
                     </div>
 
                     <!-- Navigation -->

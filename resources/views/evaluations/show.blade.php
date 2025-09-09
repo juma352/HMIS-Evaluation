@@ -15,13 +15,19 @@
             <p><strong>Evaluator:</strong> {{ $evaluation->evaluator_name }}</p>
             <p><strong>Form Type:</strong> {{ $evaluation->form_type === 'A' ? 'HMIS Vendor Evaluation' : 'Custom Development Evaluation' }}</p>
             <p><strong>Date:</strong> 
-                @if ($evaluation->form_type === 'A')
-                    {{ $evaluation->evaluation_date ? $evaluation->evaluation_date->format('Y-m-d') : 'N/A' }}
+                @if ($evaluation->evaluation_date)
+                    {{ $evaluation->evaluation_date->format('Y-m-d') }}
                 @else
-                    {{ $evaluation->evaluation_date ? $evaluation->evaluation_date->format('Y-m-d') : 'N/A' }}
+                    N/A
                 @endif
             </p>
-            <p><strong>Total Score:</strong> {{ number_format($evaluation->total_score, 2) }}%</p>
+            <p><strong>Total Score:</strong>
+    @if ($evaluation->form_type === 'B')
+        {{ number_format(\App\Providers\AppServiceProvider::calculateFormBScore($evaluation), 2) }}%
+    @else
+        {{ number_format($evaluation->total_score, 2) }}%
+    @endif
+</p>
 
             @if ($evaluation->form_type === 'A')
                 <div class="mt-4">
@@ -49,7 +55,7 @@
                             <div class="mb-4 p-3 border rounded-md bg-gray-50">
                                 <h5 class="font-medium text-lg mb-2">{{ $sectionsConfig[$sectionKey]['title'] ?? ucfirst(str_replace('_', ' ', $sectionKey)) }}</h5>
                                 @foreach ($evaluation->$sectionKey as $criterionKey => $criterionData)
-                                    <p class="text-sm ml-2"><strong>{{ $sectionsConfig[$sectionKey]['criteria'][$criterionKey]['title'] ?? ucfirst(str_replace('_', ' ', $criterionKey)) }}:</strong> Score: {{ $criterionData['score'] ?? 'N/A' }}, Comment: {{ is_array($criterionData) && isset($criterionData['comment']) ? (is_string($criterionData['comment']) ? $criterionData['comment'] : json_encode($criterionData['comment'])) : '' }}</p>
+                                    <p class="text-sm ml-2"><strong>{{ $sectionsConfig[$sectionKey]['criteria'][$criterionKey]['title'] ?? ucfirst(str_replace('_', ' ', $criterionKey)) }}:</strong> Score: {{ $criterionData['score'] ?? 'N/A' }}, Comment: {{ $criterionData['comment'] ?? '' }}</p>
                                 @endforeach
                             </div>
                         @endif
@@ -58,27 +64,23 @@
 
                 <div class="mt-4">
                     <h4 class="font-semibold">Summary & Recommendation:</h4>
-                    <p><strong>Key Strengths:</strong> {{ is_array($evaluation->key_strengths) ? json_encode($evaluation->key_strengths) : $evaluation->key_strengths }}</p>
-                    <p><strong>Areas for Improvement:</strong> {{ is_array($evaluation->areas_for_improvement) ? json_encode($evaluation->areas_for_improvement) : $evaluation->areas_for_improvement }}</p>
-                    <p><strong>Final Recommendation:</strong> {{ is_array($evaluation->recommendation) ? json_encode($evaluation->recommendation) : $evaluation->recommendation }}</p>
-                    <p><strong>Final Comments:</strong> {{ is_array($evaluation->final_comments) ? json_encode($evaluation->final_comments) : $evaluation->final_comments }}</p>
+                    <p><strong>Key Strengths:</strong> {{ $evaluation->key_strengths }}</p>
+                    <p><strong>Areas for Improvement:</strong> {{ $evaluation->areas_for_improvement }}</p>
+                    <p><strong>Final Recommendation:</strong> {{ $evaluation->recommendation }}</p>
+                    <p><strong>Final Comments:</strong> {{ $evaluation->final_comments }}</p>
                 </div>
             @else {{-- Form Type B --}}
                 <div class="mt-4">
                     <h4 class="font-semibold">Evaluation Details:</h4>
-                    <p><strong>Date:</strong> 
-                @if($evaluation->evaluation_date)
-                    {{ $evaluation->evaluation_date->format('Y-m-d') }}
-                @else
-                    N/A
-                @endif
-            </p>
                     @foreach (['section_a', 'section_b', 'section_c', 'section_d', 'section_e', 'section_f'] as $sectionKey)
                         @if (isset($evaluation->$sectionKey) && is_array($evaluation->$sectionKey))
                             <div class="mb-4 p-3 border rounded-md bg-gray-50">
                                 <h5 class="font-medium text-lg mb-2">{{ ucfirst(str_replace('_', ' ', $sectionKey)) }} Details:</h5>
-                                @foreach ($evaluation->$sectionKey as $key => $value)
-                                    <p class="text-sm ml-2"><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}, Comment: {{ is_array($value) && isset($value['comment']) ? (is_string($value['comment']) ? $value['comment'] : json_encode($value['comment'])) : '' }}</p>
+                                @php
+                                    $sectionContent = isset($evaluation->$sectionKey['ratings']) ? $evaluation->$sectionKey['ratings'] : $evaluation->$sectionKey;
+                                @endphp
+                                @foreach ($sectionContent as $key => $value)
+                                    <p class="text-sm ml-2"><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}, Comment: {{ $value['comment'] ?? '' }}</p>
                                 @endforeach
                             </div>
                         @endif
@@ -87,9 +89,9 @@
 
                 <div class="mt-4">
                     <h4 class="font-semibold">Summary & Recommendation:</h4>
-                    <p><strong>Key Strengths:</strong> {{ is_array($evaluation->key_strengths) ? json_encode($evaluation->key_strengths) : $evaluation->key_strengths }}</p>
-                    <p><strong>Key Risks:</strong> {{ is_array($evaluation->key_risks) ? json_encode($evaluation->key_risks) : $evaluation->key_risks }}</p>
-                    <p><strong>Recommendation:</strong> {{ is_array($evaluation->recommendation) ? json_encode($evaluation->recommendation) : $evaluation->recommendation }}</p>
+                    <p><strong>Key Strengths:</strong> {{ $evaluation->key_strengths }}</p>
+                    <p><strong>Key Risks:</strong> {{ $evaluation->key_risks }}</p>
+                    <p><strong>Recommendation:</strong> {{ $evaluation->recommendation }}</p>
                 </div>
             @endif
         </div>

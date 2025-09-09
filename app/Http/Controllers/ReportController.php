@@ -32,7 +32,7 @@ class ReportController extends Controller
         $formType = $request->input('form_type', 'A');
         $query->where('form_type', $formType);
 
-        $vendorEvaluations = $query->orderBy('evaluator_name')->get()->groupBy('evaluator_name');
+        $vendorEvaluations = $query->orderBy('vendor_name')->get()->groupBy('vendor_name');
         $vendors = Vendor::pluck('name')->unique()->sort();
         $evaluators = Evaluator::pluck('name')->unique()->sort();
         $sectionsConfig = app(VendorEvaluationController::class)->getSectionsConfig($formType);
@@ -64,5 +64,26 @@ class ReportController extends Controller
         $sectionsConfig = app(VendorEvaluationController::class)->getSectionsConfig($vendorEvaluation->form_type);
         $pdf = Pdf::loadView('reports.pdf', compact('vendorEvaluation', 'sectionsConfig'));
         return $pdf->download('evaluation-report-' . $vendorEvaluation->id . '.pdf');
+    }
+
+    public function updateVendorComment(Request $request)
+    {
+        $request->validate([
+            'vendor_name' => 'required|string|exists:vendors,name',
+            'final_comment' => 'required|string',
+        ]);
+
+        $latestEvaluation = VendorEvaluation::where('vendor_name', $request->vendor_name)
+            ->latest('created_at')
+            ->first();
+
+        if ($latestEvaluation) {
+            $latestEvaluation->update([
+                'final_committee_comment' => $request->final_comment,
+            ]);
+            return redirect()->route('reports.index')->with('success', 'Final comment updated successfully.');
+        } 
+
+        return redirect()->route('reports.index')->with('error', 'Could not find an evaluation for the specified vendor.');
     }
 }

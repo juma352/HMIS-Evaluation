@@ -12,4 +12,12 @@ class UserController extends Controller
         $users = User::all();
         return view('users.index', compact('users'));
     }
+
+    public function makeAdmin(User $user)
+    {
+        $user->role = 'admin';
+        $user->save();
+
+        return redirect()->back()->with('success', 'User is now an admin.');
+    }
 }

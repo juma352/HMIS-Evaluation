@@ -64,8 +64,8 @@
                                             </datalist>
                                         </div>
                                         <div>
-                                            <label for="evaluation_date" class="block text-sm font-medium text-gray-700">Evaluation Date</label>
-                                            <input type="date" name="evaluation_date" id="evaluation_date" 
+                                            <label for="meeting_date" class="block text-sm font-medium text-gray-700">Evaluation Date</label>
+                                            <input type="date" name="meeting_date" id="meeting_date" 
                                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                    required>
                                         </div>
@@ -74,7 +74,7 @@
 
                                 <!-- Evaluation Sections -->
                 <template x-for="(section, sectionKey) in sections" :key="sectionKey">
-                    <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="bg-white rounded-lg shadow mb-6" :id="'section_' + sectionKey">
                         <button type="button" 
                                 @click="toggleSection(sectionKey, $event)"
                                 class="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none"
@@ -161,12 +161,6 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <div class="bg-white rounded-lg p-4 shadow">
-                                <h3 class="text-lg font-medium mb-2">Final Score</h3>
-                                <p class="text-3xl font-bold text-indigo-600" x-text="calculateTotalScore() + '%'"></p>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="bg-white rounded-lg p-4 shadow">
                                 <h3 class="text-lg font-medium mb-2">Key Strengths</h3>
                                 <textarea name="key_strengths" 
                                           class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -241,8 +235,9 @@
 
                     if (isOpening) {
                         this.$nextTick(() => {
-                            if (event && event.currentTarget) {
-                                event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            const sectionEl = document.getElementById(`section_${sectionKey}`);
+                            if (sectionEl) {
+                                sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }
                         });
                     }
@@ -320,12 +315,12 @@
                     } else {
                          document.querySelector('[name=evaluator_name]').classList.remove('border-red-500');
                     }
-                    if (!document.querySelector('[name=evaluation_date]').value) {
-                        document.querySelector('[name=evaluation_date]').classList.add('border-red-500');
+                    if (!document.querySelector('[name=meeting_date]').value) {
+                        document.querySelector('[name=meeting_date]').classList.add('border-red-500');
                         isValid = false;
-                        if(!firstErrorEl) firstErrorEl = document.querySelector('[name=evaluation_date]');
+                        if(!firstErrorEl) firstErrorEl = document.querySelector('[name=meeting_date]');
                     } else {
-                        document.querySelector('[name=evaluation_date]').classList.remove('border-red-500');
+                        document.querySelector('[name=meeting_date]').classList.remove('border-red-500');
                     }
 
                     // Scores

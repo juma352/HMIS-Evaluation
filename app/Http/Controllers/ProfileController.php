@@ -57,4 +57,13 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function makeAdmin(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $user->role = 'admin';
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'admin-granted');
+    }
 }

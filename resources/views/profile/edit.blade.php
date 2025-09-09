@@ -24,6 +24,30 @@
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
+
+            @if(Auth::user()->role !== 'admin')
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    <section>
+                        <header>
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                {{ __('Make Admin') }}
+                            </h2>
+
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Become an administrator to access all features.') }}
+                            </p>
+                        </header>
+
+                        <form method="post" action="{{ route('profile.makeAdmin') }}" class="mt-6">
+                            @csrf
+
+                            <x-primary-button>{{ __('Become an Admin') }}</x-primary-button>
+                        </form>
+                    </section>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

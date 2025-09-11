@@ -50,7 +50,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach (\App\Models\VendorEvaluation::all() as $evaluation)
+                            @foreach (\App\Models\VendorEvaluation::where('user_id', Auth::id())->get() as $evaluation)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $evaluation->form_type === 'A' ? 'HMIS Vendor' : 'Refactoring Evaluation' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $evaluation->vendor_name }}</td>
@@ -69,7 +69,7 @@
                                     </td>
                                 </tr>
                             @endforeach
-                            @if (\App\Models\VendorEvaluation::count() === 0)
+                            @if (\App\Models\VendorEvaluation::where('user_id', Auth::id())->count() === 0)
                                 <tr>
                                     <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No evaluations submitted yet.</td>
                                 </tr>

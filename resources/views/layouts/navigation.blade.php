@@ -15,7 +15,10 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @if(Auth::user()->role === 'admin')
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        {{ __('Users') }}
+                    </x-nav-link>
+                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super-admin')
                     <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')">
                         {{ __('Reports') }}
                     </x-nav-link>
@@ -75,7 +78,10 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            @if(Auth::user()->role === 'admin')
+            <x-responsive-nav-link :href="route('evaluations.index')" :active="request()->routeIs('evaluations.index')">
+                {{ __('Evaluations') }}
+            </x-responsive-nav-link>
+            @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super-admin')
             <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.index')">
                 {{ __('Reports') }}
             </x-responsive-nav-link>

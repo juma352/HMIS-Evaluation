@@ -13,11 +13,17 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function makeAdmin(User $user)
+    
+
+    public function updateRole(Request $request, User $user)
     {
-        $user->role = 'admin';
+        $request->validate([
+            'role' => ['required', 'in:admin,user,committee'],
+        ]);
+
+        $user->role = $request->role;
         $user->save();
 
-        return redirect()->back()->with('success', 'User is now an admin.');
+        return redirect()->back()->with('success', 'User role updated successfully.');
     }
 }

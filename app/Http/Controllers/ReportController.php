@@ -14,6 +14,10 @@ class ReportController extends Controller
     {
         $query = VendorEvaluation::with('user');
 
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super-admin' && auth()->user()->role !== 'committee') {
+            $query->where('user_id', auth()->id());
+        }
+
         if ($request->filled('vendor')) {
             if (!Vendor::where('name', $request->vendor)->exists()) {
                 return redirect()->route('reports.index')->with('error', 'Selected vendor not found.');
@@ -42,6 +46,10 @@ class ReportController extends Controller
 
     public function show(VendorEvaluation $vendorEvaluation)
     {
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super-admin' && auth()->user()->role !== 'committee' && $vendorEvaluation->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $sectionsConfig = app(VendorEvaluationController::class)->getSectionsConfig($vendorEvaluation->form_type);
         return view('reports.show', compact('vendorEvaluation', 'sectionsConfig') + ['header' => 'Vendor Evaluation Details']);
     }
@@ -61,6 +69,10 @@ class ReportController extends Controller
 
     public function downloadPdf(VendorEvaluation $vendorEvaluation)
     {
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super-admin' && auth()->user()->role !== 'committee' && $vendorEvaluation->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $sectionsConfig = app(VendorEvaluationController::class)->getSectionsConfig($vendorEvaluation->form_type);
         $pdf = Pdf::loadView('reports.pdf', compact('vendorEvaluation', 'sectionsConfig'));
         return $pdf->download('evaluation-report-' . $vendorEvaluation->id . '.pdf');

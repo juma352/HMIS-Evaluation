@@ -76,12 +76,17 @@
                         @if (isset($evaluation->$sectionKey) && is_array($evaluation->$sectionKey))
                             <div class="mb-4 p-3 border rounded-md bg-gray-50">
                                 <h5 class="font-medium text-lg mb-2">{{ ucfirst(str_replace('_', ' ', $sectionKey)) }} Details:</h5>
-                                @php
-                                    $sectionContent = isset($evaluation->$sectionKey['ratings']) ? $evaluation->$sectionKey['ratings'] : $evaluation->$sectionKey;
+                                                                @php
+                                    $sectionContent = $evaluation->$sectionKey['ratings'] ?? [];
+                                    // Temporarily dump data for debugging
+                                    // dd($evaluation->$sectionKey, $sectionContent); // Keep commented out
                                 @endphp
                                 @foreach ($sectionContent as $key => $value)
-                                    <p class="text-sm ml-2"><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}, Comment: {{ $value['comment'] ?? '' }}</p>
+                                    <p class="text-sm ml-2"><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> Score: {{ $value['score'] ?? 'N/A' }}</p>
                                 @endforeach
+                                @if (isset($evaluation->$sectionKey['comments']))
+                                    <p class="text-sm ml-2 mt-2"><strong>Overall Comment:</strong> {{ $evaluation->$sectionKey['comments'] }}</p>
+                                @endif
                             </div>
                         @endif
                     @endforeach

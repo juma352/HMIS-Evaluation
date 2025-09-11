@@ -30,10 +30,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/make-admin', [ProfileController::class, 'makeAdmin'])->name('profile.makeAdmin');
+    
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.makeAdmin');
+    Route::patch('/users/{user}/update-role', [UserController::class, 'updateRole'])->name('users.updateRole');
 });
 
 require __DIR__ . '/auth.php';

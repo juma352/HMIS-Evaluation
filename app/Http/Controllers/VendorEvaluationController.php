@@ -17,7 +17,11 @@ class VendorEvaluationController extends Controller
 
     public function index()
     {
-        $evaluations = VendorEvaluation::all();
+        if (auth()->user()->role === 'admin' || auth()->user()->role === 'super-admin' || auth()->user()->role === 'committee') {
+            $evaluations = VendorEvaluation::all();
+        } else {
+            $evaluations = VendorEvaluation::where('user_id', auth()->id())->get();
+        }
         return view('evaluations.index', compact('evaluations'));
     }
 
@@ -239,6 +243,11 @@ class VendorEvaluationController extends Controller
     public function showResult($id)
     {
         $evaluation = VendorEvaluation::findOrFail($id);
+
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super-admin' && auth()->user()->role !== 'committee' && $evaluation->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $sectionsConfig = $this->getSectionsConfig($evaluation->form_type);
         return view('evaluations.show', compact('evaluation', 'sectionsConfig'));
     }

@@ -20,9 +20,7 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Edit</span>
-                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -31,9 +29,20 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $user->role }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         @if(Auth::user()->role === 'admin' && Auth::user()->id !== $user->id)
-                                            <a href="{{ route('users.makeAdmin', $user) }}" class="text-indigo-600 hover:text-indigo-900">Make Admin</a>
+                                            <form action="{{ route('users.updateRole', $user) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <div class="flex items-center">
+                                                    <select name="role" class="py-1 px-2 rounded-md border-gray-300">
+                                                        <option value="admin" @if($user->role === 'admin') selected @endif>Admin</option>
+                                                        <option value="user" @if($user->role === 'user') selected @endif>User</option>
+                                                        <option value="committee" @if($user->role === 'committee') selected @endif>Committee</option>
+                                                    </select>
+                                                    <button type="submit" class="ml-2 text-indigo-600 hover:text-indigo-900">Update</button>
+                                                </div>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>
